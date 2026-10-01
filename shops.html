@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>店舗一覧｜博多らーめん 紅一</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=Shippori+Mincho:wght@700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header id="site-header"></header>
+
+  <main>
+    <section class="page-hero" data-bg="photo-1503899036084-c55cdd92da26">
+      <div><span class="en">SHOPS</span><h1>店舗一覧</h1></div>
+    </section>
+
+    <div class="container">
+      <p class="breadcrumb"><a href="index.html">トップ</a> ＞ 店舗一覧</p>
+    </div>
+
+    <section class="page-body">
+      <div class="container">
+        <div class="filter area-tabs" data-filter-group="shop-list">
+          <button class="active" data-key="all">すべて</button>
+          <button data-key="kyushu">九州</button>
+          <button data-key="kanto">関東</button>
+          <button data-key="kansai">関西</button>
+          <button data-key="hokkaido">北海道</button>
+        </div>
+
+        <div class="shop-grid" id="shop-list">
+          <article class="shop-card" data-cat="kyushu">
+            <img data-img="photo-1614563637806-1d0e645e0940" data-w="500" alt="">
+            <div class="body">
+              <h3>中洲本店</h3>
+              <dl><dt>住所</dt><dd>福岡県福岡市博多区中洲1-2-3</dd><dt>営業</dt><dd>11:00〜翌2:00</dd><dt>定休</dt><dd>なし</dd></dl>
+            </div>
+          </article>
+          <article class="shop-card" data-cat="kyushu">
+            <img data-img="photo-1591814468924-caf88d1232e1" data-w="500" alt="">
+            <div class="body">
+              <h3>天神西通り店</h3>
+              <dl><dt>住所</dt><dd>福岡県福岡市中央区大名2-4-5</dd><dt>営業</dt><dd>11:00〜23:00</dd><dt>定休</dt><dd>なし</dd></dl>
+            </div>
+          </article>
+          <article class="shop-card" data-cat="kanto">
+            <img data-img="photo-1557872943-16a5ac26437e" data-w="500" alt="">
+            <div class="body">
+              <h3>新宿東口店</h3>
+              <dl><dt>住所</dt><dd>東京都新宿区新宿3-10-1</dd><dt>営業</dt><dd>11:00〜翌3:00</dd><dt>定休</dt><dd>なし</dd></dl>
+            </div>
+          </article>
+          <article class="shop-card" data-cat="kanto">
+            <img data-img="photo-1623341214825-9f4f963727da" data-w="500" alt="">
+            <div class="body">
+              <h3>恵比寿店</h3>
+              <dl><dt>住所</dt><dd>東京都渋谷区恵比寿南1-5-8</dd><dt>営業</dt><dd>11:00〜24:00</dd><dt>定休</dt><dd>なし</dd></dl>
+            </div>
+          </article>
+          <article class="shop-card" data-cat="kanto">
+            <img data-img="photo-1526318896980-cf78c088247c" data-w="500" alt="">
+            <div class="body">
+              <h3>横浜みなとみらい店</h3>
+              <dl><dt>住所</dt><dd>神奈川県横浜市西区みなとみらい2-2-1</dd><dt>営業</dt><dd>11:00〜22:00</dd><dt>定休</dt><dd>施設に準ずる</dd></dl>
+            </div>
+          </article>
+          <article class="shop-card" data-cat="kansai">
+            <img data-img="photo-1569718212165-3a8278d5f624" data-w="500" alt="">
+            <div class="body">
+              <h3>梅田茶屋町店</h3>
+              <dl><dt>住所</dt><dd>大阪府大阪市北区茶屋町8-1</dd><dt>営業</dt><dd>11:00〜23:30</dd><dt>定休</dt><dd>なし</dd></dl>
+            </div>
+          </article>
+          <article class="shop-card" data-cat="kansai">
+            <img data-img="photo-1552611052-33e04de081de" data-w="500" alt="">
+            <div class="body">
+              <h3>京都四条烏丸店</h3>
+              <dl><dt>住所</dt><dd>京都府京都市下京区四条通烏丸東入ル</dd><dt>営業</dt><dd>11:00〜22:00</dd><dt>定休</dt><dd>なし</dd></dl>
+            </div>
+          </article>
+          <article class="shop-card" data-cat="hokkaido">
+            <img data-img="photo-1617093727343-374698b1b08d" data-w="500" alt="">
+            <div class="body">
+              <h3>札幌すすきの店</h3>
+              <dl><dt>住所</dt><dd>北海道札幌市中央区南4条西3丁目</dd><dt>営業</dt><dd>17:00〜翌4:00</dd><dt>定休</dt><dd>日曜</dd></dl>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer id="site-footer"></footer>
+  <script src="js/main.js"></script>
+</body>
+</html>
