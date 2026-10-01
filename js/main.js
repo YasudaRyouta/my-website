@@ -46,36 +46,38 @@ function renderHeader() {
     </div>
     <nav class="header-nav" aria-label="グローバルナビゲーション">
       <ul>
-        ${PAGES.map(p => `
-          <li><a href="${p.href}" class="${p.href === here ? "current" : ""}" aria-label="${p.ja}">
+        ${[0, 1, 2].map(copy => PAGES.map(p => `
+          <li${copy === 1 ? "" : ' class="loop-copy" aria-hidden="true"'}><a href="${p.href}" class="${p.href === here ? "current" : ""}" aria-label="${p.ja}"${copy === 1 ? "" : ' tabindex="-1"'}>
             <span class="en">${p.en}</span><span class="ja">${p.ja}</span>
-          </a></li>`).join("")}
+          </a></li>`).join("")).join("")}
       </ul>
     </nav>`;
-  keepNavPosition(el.querySelector(".header-nav ul"));
+  initNavLoop(el.querySelector(".header-nav ul"));
 }
 
-// スマホでナビを横スクロールした位置を、ページを移動しても保つ
-function keepNavPosition(ul) {
-  const KEY = "navScrollLeft";
-  try {
-    const saved = sessionStorage.getItem(KEY);
-    if (saved !== null) ul.scrollLeft = Number(saved);
-  } catch (e) {}
+// スマホ：ボタン列を3セット並べてループさせ、今いるページのボタンを左端に表示する
+// （PCでは複製を隠し、7つを並べるだけ）
+function initNavLoop(ul) {
+  const items = ul.children;
+  const setWidth = () => items[PAGES.length].offsetLeft - items[0].offsetLeft;
+  const looping = () => getComputedStyle(items[PAGES.length]).display !== "none";
 
-  // 今いるページのボタンが隠れていたら、見える位置（中央）まで寄せる
-  const cur = ul.querySelector("a.current");
-  if (cur) {
-    const u = ul.getBoundingClientRect();
-    const c = cur.getBoundingClientRect();
-    if (c.left < u.left || c.right > u.right) {
-      ul.scrollLeft += c.left - u.left - (u.width - c.width) / 2;
-    }
+  function toCurrent() {
+    if (!looping()) return;
+    const cur = ul.querySelector("li:not(.loop-copy) a.current");
+    if (cur) ul.scrollLeft = cur.parentNode.offsetLeft - items[0].offsetLeft;
   }
 
-  ul.addEventListener("click", () => {
-    try { sessionStorage.setItem(KEY, ul.scrollLeft); } catch (e) {}
-  });
+  // 端に近づいたら1セット分ずらし、どこまでスクロールしても続いて見えるようにする
+  ul.addEventListener("scroll", () => {
+    if (!looping()) return;
+    const w = setWidth();
+    if (ul.scrollLeft < w / 2) ul.scrollLeft += w;
+    else if (ul.scrollLeft >= w * 1.5) ul.scrollLeft -= w;
+  }, { passive: true });
+
+  toCurrent();
+  window.addEventListener("resize", toCurrent);
 }
 
 function renderFooter() {

@@ -83,7 +83,9 @@ ul { list-style: none; }
   text-align: center;
   border-left: 1px solid rgba(255,255,255,.18);
 }
-.header-nav li:last-child a { border-right: 1px solid rgba(255,255,255,.18); }
+.header-nav li:nth-child(7) a { border-right: 1px solid rgba(255,255,255,.18); }
+/* スマホのループ用の複製（PCでは隠す） */
+.header-nav li.loop-copy { display: none; }
 /* 英語 → ホバーで日本語に入れ替わる */
 .header-nav .en,
 .header-nav .ja {
@@ -448,6 +450,8 @@ ul { list-style: none; }
   .header-nav ul { justify-content: flex-start; overflow-x: auto; scrollbar-width: none; }
   .header-nav ul::-webkit-scrollbar { display: none; }
   .header-nav li { flex: 0 0 auto; }
+  .header-nav li.loop-copy { display: block; }
+  .header-nav li:nth-child(7) a { border-right: 0; }
   .header-nav a { width: 128px; height: 46px; }
   .news-cols, .story, .shop-grid { grid-template-columns: 1fr; }
   .story.rev .story-img { order: 0; }
