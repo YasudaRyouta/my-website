@@ -52,6 +52,30 @@ function renderHeader() {
           </a></li>`).join("")}
       </ul>
     </nav>`;
+  keepNavPosition(el.querySelector(".header-nav ul"));
+}
+
+// スマホでナビを横スクロールした位置を、ページを移動しても保つ
+function keepNavPosition(ul) {
+  const KEY = "navScrollLeft";
+  try {
+    const saved = sessionStorage.getItem(KEY);
+    if (saved !== null) ul.scrollLeft = Number(saved);
+  } catch (e) {}
+
+  // 今いるページのボタンが隠れていたら、見える位置（中央）まで寄せる
+  const cur = ul.querySelector("a.current");
+  if (cur) {
+    const u = ul.getBoundingClientRect();
+    const c = cur.getBoundingClientRect();
+    if (c.left < u.left || c.right > u.right) {
+      ul.scrollLeft += c.left - u.left - (u.width - c.width) / 2;
+    }
+  }
+
+  ul.addEventListener("click", () => {
+    try { sessionStorage.setItem(KEY, ul.scrollLeft); } catch (e) {}
+  });
 }
 
 function renderFooter() {
@@ -93,6 +117,11 @@ function initSlider() {
   let index = 0;
   let timer;
 
+  // 1枚目の複製を末尾に置き、7枚目→1枚目も右へ進むように見せる（巻き戻しをなくす）
+  const clone = slides[0].cloneNode(true);
+  clone.setAttribute("aria-hidden", "true");
+  track.appendChild(clone);
+
   for (let i = 0; i < total; i++) {
     const b = document.createElement("button");
     b.setAttribute("aria-label", `${i + 1}枚目へ`);
@@ -100,11 +129,27 @@ function initSlider() {
     dots.appendChild(b);
   }
 
-  function go(i) {
-    index = (i + total) % total;
-    track.style.transform = `translateX(-${index * 100}%)`;
-    [...dots.children].forEach((d, n) => d.classList.toggle("active", n === index));
+  // アニメーションなしで位置だけ切り替える
+  function jump(i) {
+    track.style.transition = "none";
+    track.style.transform = `translateX(-${i * 100}%)`;
+    void track.offsetWidth;
+    track.style.transition = "";
   }
+
+  function go(i) {
+    if (i < 0) { jump(total); i = total - 1; }  // 1枚目から左へ：複製から7枚目へ戻る
+    if (i > total) { jump(0); i -= total; }     // 複製の上からさらに右へ：本物の1枚目から進む
+    index = i;                                  // total = 末尾の複製（見た目は1枚目）
+    track.style.transform = `translateX(-${index * 100}%)`;
+    const active = index % total;
+    [...dots.children].forEach((d, n) => d.classList.toggle("active", n === active));
+  }
+
+  // 複製まで進み終わったら、気づかれないように本物の1枚目へ
+  track.addEventListener("transitionend", () => {
+    if (index >= total) { jump(0); index = 0; }
+  });
   function restart() {
     clearInterval(timer);
     timer = setInterval(() => go(index + 1), 4500);
