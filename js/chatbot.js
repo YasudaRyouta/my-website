@@ -1,7 +1,8 @@
-/* ===== 博多らーめん 紅一 チャットボット（FAQ式） =====
- * 答えは下のデータから探して返す。お金のかかるAIは使っていない。
- * 後でAI（Claude API）に切り替える時は、getAnswer() の中身だけを
- * fetch("/api/chat") に差し替えれば、画面側はそのまま使える。
+/* ===== 博多らーめん 紅一 チャットボット（AI＋FAQ） =====
+ * 選択肢ボタンの質問は、下のデータからすぐに答える（無料）。
+ * 自由に入力された質問は /api/chat（Vercel 上の api/chat.js）経由で Claude API に聞く。
+ * AI が使えない時（APIキー未設定・残高不足・通信エラー）は、FAQ式の答えに切り替える。
+ * 店舗・メニューのデータは api/chat.js も読み込んで AI に渡すので、ここだけを直せばよい。
  */
 
 // 店舗データ（shops.html と同じ内容にそろえる）
@@ -62,9 +63,8 @@ const FAQ = [
 const GREETING = "いらっしゃいませ。紅一のご案内係です。\nお知りになりたいことを選ぶか、下の欄に入力してください。";
 const FALLBACK = `申し訳ありません、その内容はこちらでお答えできません。\nお手数ですが、${CONTACT}。`;
 
-// 入力に合う答えを返す。AIに切り替える時はここだけを差し替える
-// （例：const res = await fetch("/api/chat", {...}); return { html: (await res.json()).reply };）
-async function getAnswer(text) {
+// FAQ式：入力に合う答えをデータから探して返す（AIが使えない時の予備にもなる）
+function getFaqAnswer(text) {
   const q = text.trim();
 
   // 1. アレルギーの質問（原材料名が入っている時）
@@ -93,6 +93,37 @@ async function getAnswer(text) {
   return { html: FALLBACK };
 }
 
+// AIとの会話の履歴（自由入力のやり取りだけ。直近のものを送る）
+const history = [];
+
+// AIの答え（ただの文字）を安全に表示できる形にする。
+// [店舗一覧](shops.html) のようなサイト内リンクだけをリンクに変える
+function formatAiReply(text) {
+  return escapeHTML(text)
+    .replace(/\*\*(.+?)\*\*/g, "$1")
+    .replace(/\[([^\]]+)\]\(([a-z0-9-]+\.html)\)/g, '<a href="$2">$1</a>');
+}
+
+// 入力に合う答えを返す。選択肢ボタンはFAQ、自由入力はAIに聞く
+async function getAnswer(text, { useAi = true } = {}) {
+  if (!useAi) return getFaqAnswer(text);
+  try {
+    const res = await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: text, history: history.slice(-6) }),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const { reply } = await res.json();
+    if (!reply) throw new Error("空の返事");
+    history.push({ role: "user", content: text }, { role: "assistant", content: reply });
+    return { html: formatAiReply(reply) };
+  } catch (err) {
+    console.warn("AIに聞けなかったため、FAQ式で答えます:", err);
+    return getFaqAnswer(text);
+  }
+}
+
 // ===== ここから画面（ボタンとパネル） =====
 function escapeHTML(s) {
   return s.replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -111,7 +142,7 @@ function initChatbot() {
   panel.innerHTML = `
     <div class="chat-head">
       <span class="logo-mark">紅</span>
-      <div><strong>紅一 ご案内</strong><small>よくある質問にお答えします</small></div>
+      <div><strong>紅一 ご案内</strong><small>AIがご質問にお答えします</small></div>
       <button type="button" aria-label="閉じる">×</button>
     </div>
     <div class="chat-log" aria-live="polite"></div>
@@ -125,6 +156,7 @@ function initChatbot() {
   const form = panel.querySelector(".chat-form");
   const input = form.querySelector("input");
   let started = false;
+  let busy = false; // 返事を待っている間は次の送信を受け付けない
 
   function add(html, who) {
     const div = document.createElement("div");
@@ -132,6 +164,7 @@ function initChatbot() {
     div.innerHTML = html;
     log.appendChild(div);
     log.scrollTop = log.scrollHeight;
+    return div;
   }
 
   // 選択肢ボタン（最初と、答えのあとに出す）
@@ -143,19 +176,24 @@ function initChatbot() {
       const b = document.createElement("button");
       b.type = "button";
       b.textContent = f.label;
-      b.addEventListener("click", () => ask(f.label));
+      b.addEventListener("click", () => ask(f.label, { useAi: false }));
       wrap.appendChild(b);
     });
     log.appendChild(wrap);
     log.scrollTop = log.scrollHeight;
   }
 
-  async function ask(text) {
-    if (!text.trim()) return;
+  async function ask(text, opts) {
+    if (!text.trim() || busy) return;
+    busy = true;
     add(escapeHTML(text), "user");
-    const res = await getAnswer(text);
+    log.querySelectorAll(".chat-choices").forEach(c => c.remove());
+    const typing = add("入力中…", "bot typing");
+    const res = await getAnswer(text, opts);
+    typing.remove();
     add(res.html, "bot");
     addChoices();
+    busy = false;
   }
 
   function toggle(open) {
@@ -180,4 +218,6 @@ function initChatbot() {
   });
 }
 
-initChatbot();
+// ブラウザでは画面を作る。サーバー（api/chat.js）からはデータだけを読み込む
+if (typeof document !== "undefined") initChatbot();
+if (typeof module !== "undefined") module.exports = { SHOPS, MENU, FAQ };

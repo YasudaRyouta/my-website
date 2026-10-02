@@ -549,6 +549,7 @@ ul { list-style: none; }
 .chat-msg.bot { background: var(--white); border: 1px solid var(--line); border-top-left-radius: 4px; align-self: flex-start; }
 .chat-msg.user { background: var(--red); color: var(--white); border-top-right-radius: 4px; align-self: flex-end; }
 .chat-msg a { color: var(--red); text-decoration: underline; text-underline-offset: 3px; }
+.chat-msg.typing { color: #888; font-size: 13px; }
 .chat-choices { display: flex; flex-wrap: wrap; gap: 6px; align-self: flex-start; }
 .chat-choices button {
   padding: 7px 12px;
