@@ -4,10 +4,11 @@
 const IMG = (id, w = 1600) =>
   `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&q=75`;
 
-// 全7ページ（英語表記 → ホバーで日本語）
+// 全8ページ（英語表記 → ホバーで日本語）
 const PAGES = [
   { href: "index.html",   en: "TOP",          ja: "トップ" },
   { href: "news.html",    en: "NEWS",         ja: "お知らせ" },
+  { href: "journal.html", en: "JOURNAL",      ja: "読みもの" },
   { href: "menu.html",    en: "MENU",         ja: "お品書き" },
   { href: "shops.html",   en: "SHOPS",        ja: "店舗一覧" },
   { href: "about.html",   en: "ABOUT",        ja: "紅一について" },
@@ -26,6 +27,15 @@ const SNS = [
     svg: '<path d="M12 2.5C6.5 2.5 2 6.1 2 10.6c0 4 3.6 7.4 8.4 8 .3.1.8.2.9.5.1.3.1.7 0 1l-.1.9c0 .3-.2 1 .9.6 1.1-.5 5.9-3.5 8.1-6 1.5-1.6 2.2-3.3 2.2-5C22.5 6.1 17.5 2.5 12 2.5zM8.3 13.2H6.3a.5.5 0 0 1-.5-.5V8.8a.5.5 0 0 1 1 0v3.4h1.5a.5.5 0 0 1 0 1zm2.1-.5a.5.5 0 0 1-1 0V8.8a.5.5 0 0 1 1 0v3.9zm4.8 0a.5.5 0 0 1-.9.3l-2-2.7v2.4a.5.5 0 0 1-1 0V8.8a.5.5 0 0 1 .9-.3l2 2.7V8.8a.5.5 0 0 1 1 0v3.9zm3.2-2.5a.5.5 0 0 1 0 1h-1.5v.9h1.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5V8.8c0-.3.2-.5.5-.5h2a.5.5 0 0 1 0 1h-1.5v.9h1.5z"/>' },
 ];
 
+// フッターの補助リンク（見本のためリンク先は仮）
+const LINKS = [
+  { href: "#app",      ja: "紅一 公式アプリ" },
+  { href: "#noren",    ja: "のれん分け店主会" },
+  { href: "about.html", ja: "運営会社" },
+  { href: "#contact",  ja: "お問い合わせ" },
+  { href: "#policy",   ja: "サイトポリシー" },
+];
+
 const LOGO = `
   <span class="logo-mark">紅</span>
   <span class="logo-text"><span class="ja">博多らーめん 紅一</span><br><span class="en">BENIICHI</span></span>`;
@@ -33,7 +43,8 @@ const LOGO = `
 function renderHeader() {
   const el = document.getElementById("site-header");
   if (!el) return;
-  const here = location.pathname.split("/").pop() || "index.html";
+  let here = location.pathname.split("/").pop() || "index.html";
+  if (here.startsWith("journal-")) here = "journal.html";  // 記事ページでは「読みもの」を選択中にする
   el.className = "site-header";
   el.innerHTML = `
     <div class="header-top">
@@ -56,7 +67,7 @@ function renderHeader() {
 }
 
 // スマホ：ボタン列を3セット並べてループさせ、今いるページのボタンを左端に表示する
-// （PCでは複製を隠し、7つを並べるだけ）
+// （PCでは複製を隠し、8つを並べるだけ）
 function initNavLoop(ul) {
   const items = ul.children;
   const setWidth = () => items[PAGES.length].offsetLeft - items[0].offsetLeft;
@@ -98,6 +109,10 @@ function renderFooter() {
         <div class="footer-col">
           <h4>&nbsp;</h4>
           <ul>${PAGES.slice(4).map(p => `<li><a href="${p.href}">${p.ja}</a></li>`).join("")}</ul>
+        </div>
+        <div class="footer-col">
+          <h4>INFORMATION</h4>
+          <ul>${LINKS.map(l => `<li><a href="${l.href}">${l.ja}</a></li>`).join("")}</ul>
         </div>
         <div class="footer-col">
           <h4>FOLLOW US</h4>
